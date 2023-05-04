@@ -10,17 +10,11 @@ from .lib import get_range_for_key, get_range_for_value
 
 
 def is_include(node):
-    if not isinstance(node, dict):
-        return False
-
-    return "$include" in node
+    return "$include" in node if isinstance(node, dict) else False
 
 
 def is_import(node):
-    if not isinstance(node, dict):
-        return False
-
-    return "$import" in node
+    return "$import" in node if isinstance(node, dict) else False
 
 
 class CWLImportInclude(CWLBaseType):
@@ -56,8 +50,9 @@ class CWLImportInclude(CWLBaseType):
                 problems += [
                     Diagnostic(
                         _range=value_range,
-                        message=f"Expecting an $import",
-                        severity=DiagnosticSeverity.Error)
+                        message="Expecting an $import",
+                        severity=DiagnosticSeverity.Error,
+                    )
                 ]
                 return
             inferred_type = CWLLinkedSchemaDef(prefix=node.get("$import"))

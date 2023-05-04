@@ -19,16 +19,16 @@ class CWLEnumType(CWLBaseType):
 
     def check(self, node, node_key: str=None, map_sp: MapSubjectPredicate=None) -> TypeCheck:
 
-        if not (isinstance(node, str) or None):
+        if isinstance(node, str):
+            return (
+                TypeCheck(cwl_type=CWLDataType(node, self.symbols))
+                if self.name in ["PrimitiveType", "CWLType"]
+                else TypeCheck(cwl_type=self)
+            )
+        else:
             return TypeCheck(
                 cwl_type=self,
                 match=Match.No)
-        else:
-            if self.name in ["PrimitiveType", "CWLType"]:
-                # Special treatment for data types
-                return TypeCheck(cwl_type=CWLDataType(node, self.symbols))
-            else:
-                return TypeCheck(cwl_type=self)
 
     def parse(self,
               doc_uri: str,

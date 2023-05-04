@@ -69,10 +69,7 @@ class Configuration(configparser.ConfigParser):
         """Paths in the config file can be absolute or relative. Absolute paths are left untouched
         relative paths are resolved relative to the configuration file location"""
         path = path.expanduser()
-        if path.is_absolute():
-            return path
-        else:
-            return P(self.cfg_path, path)
+        return path if path.is_absolute() else P(self.cfg_path, path)
 
     def _load_language_files(self):
         for version in supported_versions:

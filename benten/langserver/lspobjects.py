@@ -38,8 +38,11 @@ class Position(LSPObject):
         return hash((self.line, self.character))
 
     def __eq__(self, other):
-        if not isinstance(other, type(self)): return NotImplemented
-        return self.line == other.line and self.character == other.character
+        return (
+            self.line == other.line and self.character == other.character
+            if isinstance(other, type(self))
+            else NotImplemented
+        )
 
 
 class Range(LSPObject):
@@ -51,8 +54,11 @@ class Range(LSPObject):
         return hash((self.start, self.end))
 
     def __eq__(self, other):
-        if not isinstance(other, type(self)): return NotImplemented
-        return self.start == other.start and self.end == other.end
+        return (
+            self.start == other.start and self.end == other.end
+            if isinstance(other, type(self))
+            else NotImplemented
+        )
 
 
 class TextEdit(LSPObject):
@@ -90,8 +96,11 @@ class Diagnostic(LSPObject):
         return hash((self.range, self.message))
 
     def __eq__(self, other):
-        if not isinstance(other, type(self)): return NotImplemented
-        return self.range == other.range and self.message == other.message
+        return (
+            self.range == other.range and self.message == other.message
+            if isinstance(other, type(self))
+            else NotImplemented
+        )
 
 
 class PublishDiagnosticsParams(LSPObject):

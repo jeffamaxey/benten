@@ -40,10 +40,11 @@ class ExecutionContext:
     @property
     def sample_data(self):
         ex_job_file = self.get_sample_data_file_path()
-        if ex_job_file.exists():
-            if ex_job_file.open().readline().startswith("#custom"):
-                self._sample_data = fast_yaml_io.load(ex_job_file.open().read() or "")
-                return self._sample_data
+        if ex_job_file.exists() and ex_job_file.open().readline().startswith(
+            "#custom"
+        ):
+            self._sample_data = fast_yaml_io.load(ex_job_file.open().read() or "")
+            return self._sample_data
 
         if self._sample_data is None:
             self._sample_data = get_sample_data(self.doc_uri, self.cwl, self.user_types)
@@ -58,11 +59,7 @@ class ExecutionContext:
         step_obj = list_as_map(self.cwl.get("steps"), key_field="id", problems=[]).get(step_id)
         input_obj = {}
         for k, in_obj in list_as_map(step_obj.get("in"), key_field="id", problems=[]).items():
-            if isinstance(in_obj, dict):
-                src = in_obj.get("source")
-            else:
-                src = in_obj
-
+            src = in_obj.get("source") if isinstance(in_obj, dict) else in_obj
             if isinstance(src, list):
                 input_obj[k] = [step_sample_outputs.get(s) for s in src]
             else:

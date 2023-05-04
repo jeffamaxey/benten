@@ -24,14 +24,11 @@ setup(
     install_requires=[
         "ruamel.yaml == 0.16.12",
         "dukpy >= 0.2.2",
-        "cwlformat >= 2021.1.5"
+        "cwlformat >= 2021.1.5",
     ],
     entry_points={
-        'console_scripts': [
-            'benten-ls = benten.__main__:main'
-        ],
+        'console_scripts': ['benten-ls = benten.__main__:main'],
     },
-
     author='Seven Bridges Genomics Inc.',
     maintainer='Seven Bridges Genomics Inc.',
     maintainer_email='kaushik.ghose@sbgenomics.com',
@@ -41,7 +38,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
-    license='Copyright (c) {} Seven Bridges'.format(now.year),
+    license=f'Copyright (c) {now.year} Seven Bridges',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -49,7 +46,7 @@ setup(
         'Natural Language :: English',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3 :: Only'
+        'Programming Language :: Python :: 3 :: Only',
     ],
-    keywords='seven bridges cwl common workflow language'
+    keywords='seven bridges cwl common workflow language',
 )

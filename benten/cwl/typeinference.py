@@ -64,9 +64,8 @@ def check_types(node, allowed_types, key, map_sp) -> List[TypeCheck]:
         if _type.name == 'null':
             if node is None:
                 return [TypeCheck(CWLBaseType(name=_type))]
-            else:
-                type_check_results += [TypeCheck(CWLBaseType(name=_type), match=Match.No)]
-                continue
+            type_check_results += [TypeCheck(CWLBaseType(name=_type), match=Match.No)]
+            continue
 
         # string greedily matches Expression, so we have to take care of this ...
         if _type.name == "string":
@@ -92,9 +91,8 @@ def check_types(node, allowed_types, key, map_sp) -> List[TypeCheck]:
         if _type.name in ['boolean', 'int', 'long']:
             if node is None or isinstance(node, (str, bool, int)):
                 return [TypeCheck(_type)]
-            else:
-                type_check_results += [TypeCheck(_type, match=Match.No)]
-                continue
+            type_check_results += [TypeCheck(_type, match=Match.No)]
+            continue
 
         # Exception for $import/$include
         if is_import(node):
@@ -113,12 +111,9 @@ def check_types(node, allowed_types, key, map_sp) -> List[TypeCheck]:
 
 
 def get_explicit_type_str(node, key: str, map_sp: MapSubjectPredicate):
-    if map_sp is not None:
-        if map_sp.subject == "class":
-            return key
-        else:
-            return None
-    elif isinstance(node, dict):
-        return node.get("class")
-    else:
+    if map_sp is not None and map_sp.subject == "class":
+        return key
+    elif map_sp is not None or not isinstance(node, dict):
         return None
+    else:
+        return node.get("class")

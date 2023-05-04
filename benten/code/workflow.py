@@ -78,8 +78,9 @@ class Workflow:
                 problems += [
                     Diagnostic(
                         _range=inputs.get_range_for_id(inp),
-                        message=f"Unused input",
-                        severity=DiagnosticSeverity.Warning)
+                        message="Unused input",
+                        severity=DiagnosticSeverity.Warning,
+                    )
                 ]
 
     def add_step_intel(self, step_id, step_intel: 'WFStepIntelligence'):
@@ -162,14 +163,13 @@ class PortSourceCompleterBase(IntelligenceNode):
                 for _id in _port
                 if _id != step_id
             ]
-        else:
-            src_step, src_port = self.prefix.split("/")
-            step_intel = workflow.step_intels.get(src_step)
-            if step_intel is not None:
-                return [
-                    CompletionItem(label=_id)
-                    for _id in step_intel.step_interface.outputs
-                ]
+        src_step, src_port = self.prefix.split("/")
+        step_intel = workflow.step_intels.get(src_step)
+        if step_intel is not None:
+            return [
+                CompletionItem(label=_id)
+                for _id in step_intel.step_interface.outputs
+            ]
 
 
 class PortSourceCompleter(PortSourceCompleterBase):

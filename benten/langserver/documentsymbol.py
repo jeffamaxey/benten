@@ -27,6 +27,7 @@ class DocumentSymbol(CWLLangServerBase):
     def _write_out_graph(self, doc):
         graph_data_file = pathlib.Path(
             self.config.scratch_path,
-            hashlib.md5(doc.doc_uri.encode()).hexdigest() + ".json")
+            f"{hashlib.md5(doc.doc_uri.encode()).hexdigest()}.json",
+        )
         with graph_data_file.open("w") as f:
             json.dump(doc.wf_graph, f, indent=2)

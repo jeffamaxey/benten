@@ -149,10 +149,9 @@ def parse_field(field, lang_model):
 
     map_subject_predicate = None
     jldp = field.get("jsonldPredicate")
-    if isinstance(jldp, dict):
-        if "mapSubject" in jldp:
-            map_subject_predicate = MapSubjectPredicate(jldp.get("mapSubject"),
-                                                        jldp.get("mapPredicate"))
+    if isinstance(jldp, dict) and "mapSubject" in jldp:
+        map_subject_predicate = MapSubjectPredicate(jldp.get("mapSubject"),
+                                                    jldp.get("mapPredicate"))
 
     return field_name, CWLFieldType(
         doc=field.get("doc"),

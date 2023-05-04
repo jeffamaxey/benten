@@ -81,8 +81,7 @@ class JSONRPC2Connection:
             try:
                 return int(value)
             except ValueError:
-                raise JSONRPC2ProtocolError(
-                    "Invalid Content-Length header: {}".format(value))
+                raise JSONRPC2ProtocolError(f"Invalid Content-Length header: {value}")
 
     def _receive(self):
         line = self.conn.readline()
@@ -102,13 +101,8 @@ class JSONRPC2Connection:
         If id is None, the next available message is returned.
         """
         if want is None:
-            if self._msg_buffer:
-                return self._msg_buffer.popleft()
-            return self._receive()
-
-        # First check if our buffer contains something we want.
-        msg = deque_find_and_pop(self._msg_buffer, want)
-        if msg:
+            return self._msg_buffer.popleft() if self._msg_buffer else self._receive()
+        if msg := deque_find_and_pop(self._msg_buffer, want):
             return msg
 
         # We need to keep receiving until we find something we want.
@@ -122,10 +116,7 @@ class JSONRPC2Connection:
     def _send(self, body):
         body = json.dumps(body, separators=(",", ":"))
         content_length = len(body)
-        response = (
-            "Content-Length: {}\r\n"
-            "Content-Type: application/vscode-jsonrpc; charset=utf8\r\n\r\n"
-            "{}".format(content_length, body))
+        response = f"Content-Length: {content_length}\r\nContent-Type: application/vscode-jsonrpc; charset=utf8\r\n\r\n{body}"
         self.conn.write(response)
         logger.debug("SEND %s", body)
 

@@ -73,12 +73,19 @@ class Intelligence:
         self.execution_context.set_expression_lib(expression_lib)
 
     def get_doc_element(self, loc: Position):
-        # O(n) algorithm, but should do fine for our file sizes
-        # For now doing exact matches on lines, which is sufficient
-        for n in self.lookup_table:
-            if n.loc.start.line <= loc.line <= n.loc.end.line:
-                if loc.line > n.loc.start.line or loc.character >= n.loc.start.character:
-                    if loc.line < n.loc.end.line or loc.character <= n.loc.end.character:
-                        return n.intelligence_node
-
-        return None
+        return next(
+            (
+                n.intelligence_node
+                for n in self.lookup_table
+                if n.loc.start.line <= loc.line <= n.loc.end.line
+                and (
+                    loc.line > n.loc.start.line
+                    or loc.character >= n.loc.start.character
+                )
+                and (
+                    loc.line < n.loc.end.line
+                    or loc.character <= n.loc.end.character
+                )
+            ),
+            None,
+        )

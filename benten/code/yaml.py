@@ -70,7 +70,7 @@ def heal_incomplete_key(original_text, e):
     logger.debug("Attempting to heal incomplete key")
     lines = original_text.splitlines(keepends=False)
     # TODO: This only works for block style, but it does the job
-    lines[e.context_mark.line] = lines[e.context_mark.line] + ":"
+    lines[e.context_mark.line] = f"{lines[e.context_mark.line]}:"
     return "\n".join(lines)
 
 
@@ -83,6 +83,6 @@ def heal_incomplete_key_typeB(original_text, e):
         ln -= 1
 
     if len(lines[ln]):
-        lines[ln] = lines[ln] + ":"
+        lines[ln] = f"{lines[ln]}:"
 
     return "\n".join(lines)

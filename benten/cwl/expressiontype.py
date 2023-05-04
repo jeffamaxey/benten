@@ -23,9 +23,8 @@ inputs_scan = re.compile(r"inputs\.([\w]*)", flags=re.DOTALL | re.M)
 class CWLExpressionType(CWLBaseType):
 
     def check(self, node, node_key: str=None, map_sp: MapSubjectPredicate=None) -> TypeCheck:
-        if isinstance(node, str):
-            if "$(" in node or "${" in node:
-                return TypeCheck(cwl_type=CWLExpression(node))
+        if isinstance(node, str) and ("$(" in node or "${" in node):
+            return TypeCheck(cwl_type=CWLExpression(node))
 
         return TypeCheck(cwl_type=self, match=Match.No)
 
@@ -84,10 +83,7 @@ class CWLExpression(CWLBaseType):
             return "in" not in _path and "outputEval" in _path
 
         def _self_is_in_step(_path):
-            if "in" in _path and "valueFrom" in _path:
-                return True
-            else:
-                return False
+            return "in" in _path and "valueFrom" in _path
 
         job_inputs = self.execution_context.sample_data["inputs"]
         job_outputs = self.execution_context.sample_data["outputs"]
@@ -107,7 +103,7 @@ class CWLExpression(CWLBaseType):
 
             elif _self_is_in_step(self.intel_context.path):
                 job_inputs, cwl_self = \
-                    self.execution_context.get_workflow_step_inputs(self.intel_context.path)
+                        self.execution_context.get_workflow_step_inputs(self.intel_context.path)
 
         except (ValueError, IndexError) as e:
             pass
@@ -140,14 +136,7 @@ class CWLExpression(CWLBaseType):
         cursor = 0
         fragments = []
         while r or e:
-            if r is not None and e is not None:
-                if r.start() < e.start():
-                    _frag = self._add_ref(r)
-                    r = next(refs, None)
-                else:
-                    _frag = self._add_exp(e)
-                    e = next(exps, None)
-            else:
+            if r is None or e is None:
                 if r is not None:
                     _frag = self._add_ref(r)
                     r = next(refs, None)
@@ -155,6 +144,12 @@ class CWLExpression(CWLBaseType):
                     _frag = self._add_exp(e)
                     e = next(exps, None)
 
+            elif r.start() < e.start():
+                _frag = self._add_ref(r)
+                r = next(refs, None)
+            else:
+                _frag = self._add_exp(e)
+                e = next(exps, None)
             plain_string_frag = self._add_plain_string(self.text, (cursor, _frag["span"][0]))
             cursor = _frag["span"][1]
             fragments += [plain_string_frag, _frag]

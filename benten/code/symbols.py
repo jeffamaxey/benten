@@ -8,9 +8,8 @@ from ..langserver.lspobjects import SymbolKind, DocumentSymbol, Position, Range
 
 
 def truncate(text):
-    if isinstance(text, str):
-        if len(text):
-            return textwrap.shorten(text, 20, placeholder="...")
+    if isinstance(text, str) and len(text):
+        return textwrap.shorten(text, 20, placeholder="...")
     return "-"
 
 
@@ -108,14 +107,11 @@ def extract_step_symbols(cwl, symbols):
         names = []
         for n, v in enumerate(_steps):
             mid = f"Step {n} is missing id!"
-            if isinstance(v, dict):
-                name = v.get("id", mid)
-            else:
-                name = mid
+            name = v.get("id", mid) if isinstance(v, dict) else mid
             names += [name]
     else:
         lines = [_steps.lc.key(k)[0] for k in _steps.keys()]
-        names = [k for k in _steps.keys()]
+        names = list(_steps.keys())
 
     lines += [last_line]
 

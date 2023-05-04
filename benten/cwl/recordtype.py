@@ -26,11 +26,11 @@ class CWLRecordType(CWLBaseType):
     def __init__(self, name: str, doc: str, fields: Dict[str, 'CWLFieldType']):
         super().__init__(name, doc=doc)
         self.fields = fields
-        self.required_fields = set((k for k, v in self.fields.items() if v.required))
+        self.required_fields = {k for k, v in self.fields.items() if v.required}
         self.all_fields = set(self.fields.keys())
 
     def init(self):
-        self.required_fields = set((k for k, v in self.fields.items() if v.required))
+        self.required_fields = {k for k, v in self.fields.items() if v.required}
         self.all_fields = set(self.fields.keys())
 
     def check(self, node, node_key: str=None, map_sp: MapSubjectPredicate=None) -> TypeCheck:
@@ -41,9 +41,13 @@ class CWLRecordType(CWLBaseType):
         required_fields = self.required_fields - {map_sp.subject if map_sp else None}
 
         if not isinstance(node, dict):
-            if map_sp is not None and node_key is not None:
-                if map_sp.predicate in self.required_fields and len(required_fields) <= 1:
-                    return TypeCheck(cwl_type=self)
+            if (
+                map_sp is not None
+                and node_key is not None
+                and map_sp.predicate in self.required_fields
+                and len(required_fields) <= 1
+            ):
+                return TypeCheck(cwl_type=self)
 
             return TypeCheck(cwl_type=self, match=Match.No)
 
@@ -71,21 +75,20 @@ class CWLRecordType(CWLBaseType):
               value_range: Range = None,
               requirements=None):
 
-        if not isinstance(node, dict):
-            if map_sp is not None and map_sp.predicate is not None:
-                _field_iterator = [(map_sp.predicate, node)]
-            else:
-                if node_key is not None:
-                    # This is a record being defined as part of a map and we are likely
-                    # just starting to type a key. Our self healing does not catch this
-                    # as it looks like a scalar value
-                    ln = LookupNode(loc=value_range)
-                    ln.intelligence_node = self
-                    code_intel.add_lookup_node(ln)
-                return
-        else:
+        if isinstance(node, dict):
             _field_iterator = node.items()
 
+        elif map_sp is not None and map_sp.predicate is not None:
+            _field_iterator = [(map_sp.predicate, node)]
+        else:
+            if node_key is not None:
+                # This is a record being defined as part of a map and we are likely
+                # just starting to type a key. Our self healing does not catch this
+                # as it looks like a scalar value
+                ln = LookupNode(loc=value_range)
+                ln.intelligence_node = self
+                code_intel.add_lookup_node(ln)
+            return
         field_iterator = _put_this_field_first(_field_iterator, "requirements")
         # We need to process the requirements first so that we resolve typedefs and JS libraries
 
@@ -112,8 +115,8 @@ class CWLRecordType(CWLBaseType):
                 _field = self.fields.get(k)
                 _key_doc = (_field.doc or "") if _field is not None else ""
                 _key_doc += "\n---\n## Sibling fields\n\n```" + \
-                            "\n".join(f"- {k}" for k in self.fields.keys()) + \
-                            "\n```\n"
+                                "\n".join(f"- {k}" for k in self.fields.keys()) + \
+                                "\n```\n"
                 _key_doc += f"\n---\n## {self.name or '-'}\n\n" + (self.doc or "")
                 ln = LookupNode(loc=key_range)
                 ln.intelligence_node = IntelligenceNode(
@@ -126,7 +129,7 @@ class CWLRecordType(CWLBaseType):
             # These paths tend to look like
             # ['requirements', 'XXRequirement', 'class']
             if k == "class" and len(this_intel_context.path) > 2 and \
-                    this_intel_context.path[-3] == "requirements":
+                        this_intel_context.path[-3] == "requirements":
                 ln = LookupNode(loc=value_range)
                 ln.intelligence_node = this_intel_context.requirements
                 code_intel.add_lookup_node(ln)
@@ -177,7 +180,7 @@ class CWLRecordType(CWLBaseType):
                 requirements=requirements)
 
             if self.name == "WorkflowStep" and k == "when" \
-                    and isinstance(inferred_type, CWLExpression):
+                        and isinstance(inferred_type, CWLExpression):
                 extra_inputs_for_when = inferred_type.guess_inputs()
 
             if self.name == "WorkflowOutputParameter" and k == "outputSource":

@@ -56,7 +56,7 @@ def get_sample_data(doc_uri: str, cwl: dict, user_types: dict):
 
 def get_sample_globbed_files(name):
     return [
-        basic_example_value(name + "/globbed_file_" + str(i), "File")
+        basic_example_value(f"{name}/globbed_file_{str(i)}", "File")
         for i in range(random.randint(0, 4))
     ]
 
@@ -71,9 +71,13 @@ def generate_sample_outputs(cwl: dict, user_types: dict):
 
 def generate_sample_intermediate_results(doc_uri: str, cwl: dict, parent_user_types):
     return {
-        step_id + "/" + k: v
-        for step_id, step in list_as_map(cwl.get("steps"), key_field="id", problems=[]).items()
-        for k, v in extract_step_sample_outputs(doc_uri, step.get("run"), parent_user_types).items()
+        f"{step_id}/{k}": v
+        for step_id, step in list_as_map(
+            cwl.get("steps"), key_field="id", problems=[]
+        ).items()
+        for k, v in extract_step_sample_outputs(
+            doc_uri, step.get("run"), parent_user_types
+        ).items()
     }
 
 
@@ -97,24 +101,24 @@ def extract_step_sample_outputs(doc_uri: str, run_field, parent_user_types):
             run_field = fast_load.load(linked_file)
             user_types = extract_schemadef(linked_file.as_uri(), run_field)
 
-    outputs = {}
-    if isinstance(run_field, dict):
-        outputs = generate_sample_outputs(run_field, user_types)
-
-    return outputs
+    return (
+        generate_sample_outputs(run_field, user_types)
+        if isinstance(run_field, dict)
+        else {}
+    )
 
 
 def basic_example_value(name, _type):
-    name = name + "_" + "".join(random.choices(string.ascii_letters, k=5))
+    name = f"{name}_" + "".join(random.choices(string.ascii_letters, k=5))
     if _type == 'null':
         return 'null'
     elif _type == 'Any':
         return 'Any'
     elif _type == 'boolean':
         return random.randint(0, 1) > 0
-    elif _type == 'int' or _type == 'long':
+    elif _type in ['int', 'long']:
         return random.randint(-1000, 1000)
-    elif _type == 'float' or _type == 'double':
+    elif _type in ['float', 'double']:
         return random.random() * 100 - 50
     elif _type == 'string':
         return name
@@ -168,7 +172,10 @@ def record_example_value(name, _type, user_types):
 
 def example_value(name, cwl_type, user_types, array_of=False):
     if array_of:
-        return [example_value(name + "/" + str(i), cwl_type, user_types) for i in range(4)]
+        return [
+            example_value(f"{name}/{str(i)}", cwl_type, user_types)
+            for i in range(4)
+        ]
 
     if isinstance(cwl_type, list):
         l = len(cwl_type)

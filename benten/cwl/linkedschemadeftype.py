@@ -38,12 +38,13 @@ class CWLLinkedSchemaDef(CWLLinkedFile):
             problems += [
                 Diagnostic(
                     _range=value_range,
-                    message=f"Problem parsing SchemaDef file",
-                    severity=DiagnosticSeverity.Error)
+                    message="Problem parsing SchemaDef file",
+                    severity=DiagnosticSeverity.Error,
+                )
             ]
             return
 
         for _type in _type_list:
             if "name" in _type:
-                name = self.prefix + "#" + _type.pop("name")
+                name = f"{self.prefix}#" + _type.pop("name")
                 code_intel.type_defs[name] = _type

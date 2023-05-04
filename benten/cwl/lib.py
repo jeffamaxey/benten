@@ -17,11 +17,7 @@ def get_range_for_key(parent, key):
 
 # TODO: refactor this for redundancy
 def get_range_for_value(node, key):
-    if isinstance(node, dict):
-        start = node.lc.value(key)
-    else:
-        start = node.lc.item(key)
-
+    start = node.lc.value(key) if isinstance(node, dict) else node.lc.item(key)
     v = node[key]
     if v is None:
         end = (start[0], start[1])
@@ -179,16 +175,10 @@ def un_mangle_uri(doc_uri):
 
 def resolve_file_path(doc_uri, target_path):
     _path = pathlib.PurePosixPath(target_path)
-    if not _path.is_absolute():
-        base_path = un_mangle_uri(doc_uri).parent
-    else:
-        base_path = "."
+    base_path = "." if _path.is_absolute() else un_mangle_uri(doc_uri).parent
     _path = pathlib.Path(base_path / _path).resolve().absolute()
     return _path
 
 
 def normalize_source(src):
-    if isinstance(src, str) and src.startswith("#"):
-        return src[1:]
-    else:
-        return src
+    return src[1:] if isinstance(src, str) and src.startswith("#") else src

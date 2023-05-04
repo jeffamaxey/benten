@@ -81,7 +81,7 @@ class LangServer(
     # 	}
     # }
     def handle(self, client_query):
-        logger.info("Client query: {}".format(client_query.get("method")))
+        logger.info(f'Client query: {client_query.get("method")}')
 
         is_a_request = "id" in client_query
 
@@ -155,7 +155,7 @@ class LangServer(
 
     @staticmethod
     def serve_unknown(client_query):
-        msg = "Unknown method: {}".format(client_query["method"])
+        msg = f'Unknown method: {client_query["method"]}'
         raise ServerError(
             server_error_message=msg,
             json_rpc_error=JSONRPC2Error(
@@ -171,7 +171,7 @@ class LangServer(
         self.initialization_request_received = True
 
         self.client_capabilities = client_query.get("capabilities", {})
-        logger.debug("InitOpts: {}".format(client_query))
+        logger.debug(f"InitOpts: {client_query}")
 
         return {
             "capabilities": {
